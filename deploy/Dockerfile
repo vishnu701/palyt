@@ -1,4 +1,4 @@
-# KitchenVoice gateway image. Built on the VM; no local Docker needed.
+# Wastyd gateway image. Built on the VM; no local Docker needed.
 FROM oven/bun:1-slim AS deps
 WORKDIR /app
 COPY package.json bun.lock* ./

@@ -1,4 +1,4 @@
-# KitchenVoice
+# Wastyd
 
 Voice-based operations logging for restaurant kitchens. Hold a button, say what happened
 (in Hindi, Kannada, Marathi, Tamil, Telugu, English or a mix), see a review card in your own

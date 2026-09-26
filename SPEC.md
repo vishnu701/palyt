@@ -1,4 +1,4 @@
-# KitchenVoice — build spec (single source of truth)
+# Wastyd — build spec (single source of truth)
 
 Read this whole file, then your brief in `briefs/`. It records everything the founders and
 the planning agent decided; the building agents have no other context and cannot talk to each

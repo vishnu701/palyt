@@ -1,4 +1,4 @@
-// KitchenVoice phone app. One WebSocket, four states: idle → listening → (clarify | review) → saved.
+// Wastyd phone app. One WebSocket, four states: idle → listening → (clarify | review) → saved.
 // boot(opts) is exported so tests can inject a fake capture, a stub AudioContext and the mock's URLs.
 import {
   connect, wsUrlFor, clientId, createPlayer, createCapture, el, fmtNum, fmtInr, fmtTimeIst, unitWord, word,

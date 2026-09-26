@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "kitchenvoice",
+      "name": "wastyd",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.128.0",
         "zod": "^4.6.5",

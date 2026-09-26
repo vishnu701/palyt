@@ -72,7 +72,7 @@ export function boot(opts = {}) {
         el(doc, "h1", { text: s.title }),
         el(doc, "div", { class: "lines", style: "margin-top:40px" }, s.lines.map((t, i) => el(doc, "div", {}, [el(doc, "b", { text: String(i + 1) }), el(doc, "span", { text: t })]))),
       ]),
-      el(doc, "div", { class: "foot" }, [el(doc, "span", { text: "KitchenVoice · Vishnu × Ayush" }), el(doc, "span", { text: `${step} / ${STEPS.length}` })]),
+      el(doc, "div", { class: "foot" }, [el(doc, "span", { text: "Wastyd · Vishnu × Ayush" }), el(doc, "span", { text: `${step} / ${STEPS.length}` })]),
     );
   }
   function go(n) {

@@ -1,4 +1,4 @@
-/* KitchenVoice — shared styles for /, /dashboard, /present. Palette from the wireframe. */
+/* Wastyd — shared styles for /, /dashboard, /present. Palette from the wireframe. */
 :root {
   --ground: #f4f1ea; --ink: #1c1b19; --orange: #c2410c; --green: #1f7a4d; --blue: #35507a;
   --card: #ffffff; --line: #e0d9ca; --muted: #6b665c; --amber: #b45309; --amber-bg: #fdf1dc;
