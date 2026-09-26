@@ -1,5 +1,5 @@
 .env
-.env.*
+.env.local
 node_modules/
 data/
 *.log
