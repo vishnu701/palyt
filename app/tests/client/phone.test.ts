@@ -28,9 +28,9 @@ describe("phone app replays session.json", () => {
   test("connects, sends hello first, shows the guest banner", async () => {
     await until(() => app.state.ready, "ready");
     expect(view()).toBe("idle");
-    expect(text($("status"))).toBe("live");
+    expect(text($("status"))).toBe("");            // header goes quiet once live
     expect(mic().classList.contains("off")).toBe(false);
-    expect(text(doc.querySelector(".banner-title"))).toContain("Guest mode");
+    expect(text(doc.querySelector(".idle-copy h1"))).toContain("Say what happened");
     await until(() => app.state.catalog.length > 0, "catalog loaded");
   });
 

@@ -1,4 +1,4 @@
-// Wastyd phone app. One WebSocket, four states: idle → listening → (clarify | review) → saved.
+// Palyt phone app. One WebSocket, four states: idle → listening → (clarify | review) → saved.
 // boot(opts) is exported so tests can inject a fake capture, a stub AudioContext and the mock's URLs.
 import {
   connect, wsUrlFor, clientId, createPlayer, createCapture, el, fmtNum, fmtInr, fmtTimeIst, unitWord, word,
@@ -46,7 +46,8 @@ export function boot(opts = {}) {
     S.timers.toast = setTimeout(() => { els.toast.hidden = true; }, ms);
   }
   function setStatus(text, on) {
-    els.status.textContent = text;
+    els.status.textContent = on ? "" : text;
+    els.status.parentElement.classList.toggle("quiet", !!on);
     els.dot.classList.toggle("on", !!on);
     els.mic.classList.toggle("off", !on);
   }
@@ -148,7 +149,7 @@ export function boot(opts = {}) {
 
   // ── Typed fallback ───────────────────────────────────────────────────────
   function showType(on) { els.typeForm.hidden = !on; if (on) els.typeInput.focus?.(); }
-  els.typeToggle.addEventListener("click", () => showType(els.typeForm.hidden));
+  els.typeToggle.addEventListener("click", () => showType(true)); // the composer is always visible now
   els.typeForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const text = els.typeInput.value.trim();

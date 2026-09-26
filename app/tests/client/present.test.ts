@@ -25,7 +25,7 @@ describe("presenter", () => {
     expect(doc.getElementById("dash").hidden).toBe(false);
     expect(doc.getElementById("slide").hidden).toBe(true);
     expect(text(doc.getElementById("livebar"))).toContain("asia-south1");
-    expect(text(doc.getElementById("livebar"))).toContain("~640 ms");
+    expect(text(doc.getElementById("livebar"))).toContain("under a second");
 
     doc.dispatchEvent(new win.KeyboardEvent("keydown", { key: " ", bubbles: true }));
     expect(p.step).toBe(4);
