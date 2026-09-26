@@ -1,0 +1,525 @@
+{
+  "_readme": "Interpreter fixtures. `expect` fields are checked exactly unless the key starts with `~`. `~script` = Unicode block that confirm_text/question/speak_text must be written in. `~language_prefix` = first 2 letters of draft.language. Text fields the model writes (confirm_text, question, speak_text) are never compared verbatim.",
+  "cases": [
+    {
+      "name": "hindi wastage, clean",
+      "text": "पाँच किलो पनीर खराब हो गया",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "hi",
+        "~script": "Devanagari",
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "paneer",
+            "quantity": 5,
+            "unit": "kg",
+            "quantity_base": 5,
+            "base_unit": "kg",
+            "value_inr": 1750,
+            "reason": "spoiled",
+            "warnings": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "hinglish, latin script in → devanagari out",
+      "text": "paanch kilo paneer kharab ho gaya",
+      "languageHint": "en-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "hi",
+        "~script": "Devanagari",
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "paneer",
+            "quantity": 5,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kannada receiving",
+      "text": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ",
+      "languageHint": "kn-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "kn",
+        "~script": "Kannada",
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "milk",
+            "quantity": 20,
+            "unit": "l",
+            "quantity_base": 20,
+            "value_inr": 1200
+          }
+        ]
+      }
+    },
+    {
+      "name": "kannada in latin script (what Sarvam actually returns), hint says en → kannada out",
+      "text": "20 liter haalu bandide",
+      "languageHint": "en-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "kn",
+        "~script": "Kannada",
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "milk",
+            "quantity": 20,
+            "unit": "l"
+          }
+        ]
+      }
+    },
+    {
+      "name": "marathi temperature check",
+      "text": "वॉक-इन फ्रिज चार डिग्री आहे",
+      "languageHint": "mr-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "mr",
+        "~script": "Devanagari",
+        "entries": [
+          {
+            "action": "temperature_check",
+            "item_id": "walkin_fridge",
+            "temperature_c": 4,
+            "unit": "c",
+            "value_inr": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "english eggs, pieces",
+      "text": "twenty eggs received",
+      "languageHint": "en-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "en",
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "eggs",
+            "quantity": 20,
+            "unit": "pcs",
+            "value_inr": 140
+          }
+        ]
+      }
+    },
+    {
+      "name": "ambiguous item → ask, options from catalog in hindi",
+      "text": "दस किलो चावल आया",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "needs_clarification",
+        "~language_prefix": "hi",
+        "~script": "Devanagari",
+        "clarification": {
+          "field": "item_id",
+          "entry_index": 0,
+          "round": 1,
+          "~option_values_set": [
+            "rice",
+            "rice_basmati"
+          ]
+        },
+        "entries": [
+          {
+            "action": "receiving",
+            "quantity": 10,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tap answer resolves the ambiguity without asking again",
+      "text": "rice_basmati",
+      "languageHint": null,
+      "tapAnswer": true,
+      "pending": "$prev",
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "hi",
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "rice_basmati",
+            "quantity": 10,
+            "unit": "kg",
+            "value_inr": 1100
+          }
+        ]
+      }
+    },
+    {
+      "name": "voice answer to the same question",
+      "text": "बासमती",
+      "languageHint": "hi-IN",
+      "pending": "$prev2",
+      "expect": {
+        "intent": "log",
+        "~language_prefix": "hi",
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "rice_basmati",
+            "quantity": 10,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unit missing but plausible → assume, do not ask",
+      "text": "matcha 20",
+      "languageHint": "en-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "item_id": "matcha",
+            "quantity": 20,
+            "unit": "g",
+            "quantity_base": 0.02,
+            "base_unit": "kg",
+            "~warnings_include": [
+              "unit_assumed"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "quantity missing → ask for it (free answer)",
+      "text": "पनीर खराब हो गया",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "needs_clarification",
+        "~language_prefix": "hi",
+        "clarification": {
+          "field": "quantity",
+          "entry_index": 0,
+          "round": 1,
+          "options": []
+        }
+      }
+    },
+    {
+      "name": "unit cannot convert → ask unit with the item's valid units",
+      "text": "दो लीटर पनीर खराब",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "needs_clarification",
+        "~language_prefix": "hi",
+        "clarification": {
+          "field": "unit",
+          "entry_index": 0,
+          "~option_values_include": [
+            "kg"
+          ]
+        }
+      }
+    },
+    {
+      "name": "correction while a card is pending",
+      "text": "नहीं, तीन किलो",
+      "languageHint": "hi-IN",
+      "pending": "$case:hindi wastage, clean",
+      "expect": {
+        "intent": "correction",
+        "replaced_pending": false,
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "paneer",
+            "quantity": 3,
+            "unit": "kg",
+            "value_inr": 1050
+          }
+        ]
+      }
+    },
+    {
+      "name": "new entry while a card is pending → log, replaced_pending",
+      "text": "पाँच लीटर दूध आया",
+      "languageHint": "hi-IN",
+      "pending": "$case:hindi wastage, clean",
+      "expect": {
+        "intent": "log",
+        "replaced_pending": true,
+        "entries": [
+          {
+            "action": "receiving",
+            "item_id": "milk",
+            "quantity": 5,
+            "unit": "l"
+          }
+        ]
+      }
+    },
+    {
+      "name": "cancel",
+      "text": "रहने दो, cancel करो",
+      "languageHint": "hi-IN",
+      "pending": "$case:hindi wastage, clean",
+      "expect": {
+        "intent": "cancel",
+        "entries": []
+      }
+    },
+    {
+      "name": "nothing loggable",
+      "text": "आज बहुत गर्मी है",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "unclear",
+        "entries": [],
+        "~script": "Devanagari"
+      }
+    },
+    {
+      "name": "two items in one sentence",
+      "text": "पाँच किलो पनीर और दो लीटर दूध खराब",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "paneer",
+            "quantity": 5,
+            "unit": "kg"
+          },
+          {
+            "action": "wastage",
+            "item_id": "milk",
+            "quantity": 2,
+            "unit": "l"
+          }
+        ]
+      }
+    },
+    {
+      "name": "prep in portions, hinglish",
+      "text": "dal makhani ka bees portion bana diya",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "action": "prep",
+            "item_id": "dal_makhani",
+            "quantity": 20,
+            "unit": "portion",
+            "quantity_base": 20,
+            "base_unit": "portion"
+          }
+        ]
+      }
+    },
+    {
+      "name": "item not in catalog → ask once which item (no options), in the speaker language",
+      "text": "चार किलो स्टार फ्रूट खराब हो गया",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "needs_clarification",
+        "~language_prefix": "hi",
+        "~script": "Devanagari",
+        "clarification": {
+          "field": "item_id",
+          "entry_index": 0,
+          "round": 1,
+          "options": []
+        },
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "unknown",
+            "quantity": 4,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "answer names a catalog item → resolved",
+      "text": "टमाटर",
+      "languageHint": "hi-IN",
+      "pending": "$prev",
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "tomato",
+            "quantity": 4,
+            "unit": "kg",
+            "value_inr": 160
+          }
+        ]
+      }
+    },
+    {
+      "name": "answer is still not in catalog → card with unknown_item, no second question",
+      "text": "नहीं, स्टार फ्रूट ही है",
+      "languageHint": "hi-IN",
+      "pending": "$prev2",
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "action": "wastage",
+            "item_id": "unknown",
+            "quantity": 4,
+            "unit": "kg",
+            "value_inr": null,
+            "~warnings_include": [
+              "unknown_item"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ambiguous + unknown in one sentence → rice question first, both entries kept",
+      "text": "do kilo chawal aur teen kilo star fruit aaya",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "needs_clarification",
+        "~language_prefix": "hi",
+        "clarification": {
+          "field": "item_id",
+          "entry_index": 0,
+          "round": 1,
+          "~option_values_set": [
+            "rice",
+            "rice_basmati"
+          ]
+        },
+        "entries": [
+          {
+            "action": "receiving",
+            "quantity": 2,
+            "unit": "kg"
+          },
+          {
+            "action": "receiving",
+            "item_id": "unknown",
+            "quantity": 3,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tap answer for rice → now asks about the unknown item (round 2)",
+      "text": "rice_basmati",
+      "languageHint": null,
+      "tapAnswer": true,
+      "pending": "$prev",
+      "expect": {
+        "intent": "needs_clarification",
+        "clarification": {
+          "field": "item_id",
+          "entry_index": 1,
+          "round": 2,
+          "options": []
+        },
+        "entries": [
+          {
+            "item_id": "rice_basmati",
+            "quantity": 2,
+            "unit": "kg"
+          },
+          {
+            "item_id": "unknown",
+            "quantity": 3,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "answer names tomato → both entries resolved, no further question",
+      "text": "टमाटर",
+      "languageHint": "hi-IN",
+      "pending": "$prev",
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "item_id": "rice_basmati",
+            "quantity": 2,
+            "unit": "kg",
+            "value_inr": 220
+          },
+          {
+            "item_id": "tomato",
+            "quantity": 3,
+            "unit": "kg",
+            "value_inr": 120
+          }
+        ]
+      }
+    },
+    {
+      "name": "half and one-and-a-half",
+      "text": "आधा किलो मक्खन और डेढ़ किलो दही",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "entries": [
+          {
+            "item_id": "butter",
+            "quantity": 0.5,
+            "unit": "kg"
+          },
+          {
+            "item_id": "curd",
+            "quantity": 1.5,
+            "unit": "kg"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identical transcript is served from the local cache",
+      "text": "पाँच किलो पनीर खराब हो गया",
+      "languageHint": "hi-IN",
+      "pending": null,
+      "expect": {
+        "intent": "log",
+        "~meta_local_cache_hit": true
+      }
+    }
+  ],
+  "_pending_refs": "`$prev` = the Draft returned by the previous case; `$prev2` = two cases back; `$case:<name>` = the Draft returned by that named case. Test runner substitutes."
+}

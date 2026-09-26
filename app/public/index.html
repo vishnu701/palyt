@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#f4f1ea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>KitchenVoice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="phone">
+<header class="top">
+  <div class="brand"><span id="dot" class="dot"></span><span>KitchenVoice</span><span id="status" class="muted" style="font-weight:400;font-size:13px">connecting…</span></div>
+  <div id="timings" class="mono"></div>
+</header>
+
+<main id="main">
+  <section data-view="idle">
+    <div class="banner">
+      <div class="banner-title">Guest mode · no login</div>
+      <div class="banner-sub">Hold the button and say what happened in the kitchen.</div>
+    </div>
+    <ul class="examples">
+      <li><span class="tag">hi</span><span>पाँच किलो पनीर खराब हो गया</span></li>
+      <li><span class="tag">kn</span><span>ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ</span></li>
+      <li><span class="tag">mr</span><span>दहा किलो कांदा वापरला</span></li>
+      <li><span class="tag">en</span><span>Walk-in fridge four degrees</span></li>
+    </ul>
+    <p id="idleToday" class="idle-today"></p>
+  </section>
+
+  <section data-view="listening" hidden>
+    <canvas id="wave" width="342" height="64" aria-hidden="true"></canvas>
+    <p class="live" aria-live="polite"><span id="liveStable"></span><span id="liveTail" class="muted"></span></p>
+    <p class="hint">Release to finish</p>
+  </section>
+
+  <section data-view="waiting" hidden>
+    <p class="live" id="waitText">…</p>
+    <p id="waitSlow" class="hint slow" hidden>Taking longer than usual…</p>
+  </section>
+
+  <section data-view="clarify" hidden>
+    <p class="question" id="question"></p>
+    <div id="options" class="options" role="group"></div>
+    <button id="somethingElse" class="btn ghost" type="button">Something else</button>
+    <p class="hint" id="roundHint"></p>
+  </section>
+
+  <section data-view="review" hidden>
+    <div id="cards" style="display:flex;flex-direction:column;gap:12px"></div>
+    <p class="confirm">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"></path><path d="M16 9a4 4 0 0 1 0 6"></path><path d="M18.5 6.5a8 8 0 0 1 0 11"></path></svg>
+      <span id="confirmText"></span>
+    </p>
+    <div class="row">
+      <button id="cancelBtn" class="btn big danger" type="button" aria-label="Cancel">✕</button>
+      <button id="confirmBtn" class="btn big ok" type="button" aria-label="Confirm">✓</button>
+    </div>
+  </section>
+
+  <section data-view="saved" hidden>
+    <div class="saved-panel">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+      <p id="readback"></p>
+    </div>
+    <div id="photoRow" class="row" hidden style="align-items:center">
+      <button id="photoBtn" class="btn ghost" type="button">Add photo</button>
+      <img id="photoThumb" class="thumb" alt="" hidden>
+      <span id="photoStatus" class="hint"></span>
+    </div>
+    <input id="photoInput" type="file" accept="image/*" capture="environment" hidden>
+    <h3 class="section-title">Today</h3>
+    <ul id="todayList" class="today"></ul>
+  </section>
+
+  <div id="picker" class="picker" hidden>
+    <div class="picker-head"><span>Which item?</span><button id="pickerClose" class="btn small" type="button">✕</button></div>
+    <div id="pickerList" class="picker-list"></div>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+</main>
+
+<footer class="bottom">
+  <form id="typeForm" class="typeform" hidden autocomplete="off">
+    <label for="typeInput" class="sr-only" hidden>Type what happened</label>
+    <input id="typeInput" placeholder="Type what happened…" autocomplete="off" enterkeyhint="send">
+    <button class="btn small" type="submit">Send</button>
+  </form>
+  <button id="mic" class="mic off" type="button" aria-label="Hold to talk">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#1c1b19" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path><path d="M8 21h8"></path></svg>
+  </button>
+  <div class="mic-hint"><span id="micHint">Hold to talk</span> · <button id="typeToggle" class="link" type="button">type instead</button></div>
+</footer>
+
+<script type="module">
+  import { boot } from "/app.js";
+  window.kv = boot();
+</script>
+</body>
+</html>

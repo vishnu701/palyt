@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen Voice · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="dash">
+<header class="dash-head">
+  <h1>Kitchen Voice</h1>
+  <span id="conn" class="conn" aria-live="polite"></span>
+</header>
+
+<div class="tiles">
+  <div class="tile"><div class="k">Total Entries</div><div class="v" id="tEntries">0</div><div class="s" id="tEntriesSub"></div></div>
+  <div class="tile wast"><div class="k">Wastage</div><div class="v" id="tWastage">₹0</div><div class="s">Confirmed by staff</div></div>
+  <div class="tile recv"><div class="k">Received</div><div class="v" id="tReceived">₹0</div><div class="s">Deliveries logged</div></div>
+  <div class="tile"><div class="k">Speed</div><div class="v" id="tSpeed">–</div><div class="s">Release → card</div></div>
+</div>
+
+<div class="cols">
+  <section>
+    <h2 class="sec">Live Log</h2>
+    <div id="strip" class="strip" data-state="idle"><span id="stripDot" class="dot rec" hidden></span><span class="k" id="stripK"></span><span class="txt" id="stripText"></span></div>
+    <div class="panel">
+      <ul id="log" class="log"><li class="empty">Nothing logged yet. Hold the button on the phone.</li></ul>
+    </div>
+  </section>
+  <section>
+    <h2 class="sec">Inventory</h2>
+    <div class="panel side">
+      <div class="seg" role="tablist">
+        <button id="tabInv" class="on" type="button" role="tab" aria-selected="true">Ingredients</button>
+        <button id="tabMenu" type="button" role="tab" aria-selected="false">Recipes</button>
+      </div>
+      <ul id="inv" class="inv"></ul>
+      <ul id="menu" class="menu" hidden></ul>
+      <div id="dish" class="dish" hidden></div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+  import { boot } from "/dashboard.js";
+  window.kv = boot();
+</script>
+</body>
+</html>

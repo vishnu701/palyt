@@ -1,0 +1,94 @@
+{
+  "_readme": "Scripted gateway behaviour for the Client's mock server (tests/mock-gateway.ts) and for Gateway protocol tests. Each step: the client sends `send` (binary audio frames are represented as {\"_binary\": bytes}); the gateway must reply with `expect` in order (fields marked * are any value). Mock gateway replays `expect` verbatim with small delays.",
+  "steps": [
+    { "send": { "type": "hello", "client_id": "c1", "role": "staff" },
+      "expect": [ { "type": "ready", "session_id": "*", "stt": "ok", "tts": "ok", "model": "fake" } ] },
+
+    { "send": { "type": "ptt.start", "turn": 1 }, "expect": [] },
+    { "send": { "_binary": 1280 }, "expect": [ { "type": "stt.partial", "turn": 1, "text": "ಇಪ್ಪತ್ತು", "language": "kn-IN" } ] },
+    { "send": { "_binary": 1280 }, "expect": [ { "type": "stt.partial", "turn": 1, "text": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು", "language": "kn-IN" } ] },
+    { "send": { "type": "ptt.stop", "turn": 1 },
+      "expect": [
+        { "type": "stt.final", "turn": 1, "text": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ", "language": "kn-IN" },
+        { "type": "draft", "turn": 1, "timings": { "stt_ms": "*", "llm_ms": "*", "total_ms": "*" },
+          "draft": { "draft_id": "d1", "transcript": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ", "language": "kn-IN", "intent": "log", "replaced_pending": false, "clarification": null,
+            "confirm_text": "20 ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ — ಸರಿಯೇ?", "speak_text": "20 ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ — ಸರಿಯೇ?",
+            "entries": [ { "action": "receiving", "item_id": "milk", "item_label": "ಹಾಲು", "item_heard": "ಹಾಲು", "quantity": 20, "unit": "l", "quantity_base": 20, "base_unit": "l", "value_inr": 1200, "reason": null, "temperature_c": null, "stock_after": 60, "warnings": [] } ],
+            "meta": { "model": "fake", "prompt_version": "fake", "llm_ms": 0, "local_cache_hit": false, "prompt_cache_read_tokens": 0 } } },
+        { "type": "tts", "ref": "d1", "text": "20 ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ — ಸರಿಯೇ?", "language": "kn-IN", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "draft.confirm", "draft_id": "d1" },
+      "expect": [
+        { "type": "record.saved", "record": { "record_id": "*", "draft_id": "d1", "created_at": "*", "session_id": "*", "language": "kn-IN", "transcript": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ", "edited": false, "clarified": false, "photo_url": null, "entries": "*", "timings": "*", "meta": "*" } },
+        { "type": "draft.cleared", "draft_id": "d1", "reason": "confirmed" },
+        { "type": "record.new", "record": "*" },
+        { "type": "inventory.update", "items": "*" },
+        { "type": "tts", "ref": "*", "text": "*", "language": "kn-IN", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "ptt.start", "turn": 2 }, "expect": [] },
+    { "send": { "type": "ptt.stop", "turn": 2 },
+      "expect": [
+        { "type": "stt.final", "turn": 2, "text": "दस किलो चावल आया", "language": "hi-IN" },
+        { "type": "draft", "turn": 2, "timings": "*",
+          "draft": { "draft_id": "d2", "transcript": "दस किलो चावल आया", "language": "hi-IN", "intent": "needs_clarification", "replaced_pending": false, "confirm_text": "",
+            "speak_text": "कौन सा चावल — बासमती या साधारण?",
+            "clarification": { "field": "item_id", "entry_index": 0, "round": 1, "question": "कौन सा चावल — बासमती या साधारण?",
+              "options": [ { "value": "rice_basmati", "label": "बासमती चावल" }, { "value": "rice", "label": "साधारण चावल" } ] },
+            "entries": [ { "action": "receiving", "item_id": "unknown", "item_label": "चावल", "item_heard": "चावल", "quantity": 10, "unit": "kg", "quantity_base": null, "base_unit": null, "value_inr": null, "reason": null, "temperature_c": null, "stock_after": null, "warnings": [] } ],
+            "meta": "*" } },
+        { "type": "tts", "ref": "d2", "text": "कौन सा चावल — बासमती या साधारण?", "language": "hi-IN", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "draft.answer", "draft_id": "d2", "value": "rice_basmati" },
+      "expect": [
+        { "type": "draft", "turn": 2, "timings": { "stt_ms": null, "llm_ms": "*", "total_ms": "*" },
+          "draft": { "draft_id": "d3", "intent": "log", "language": "hi-IN", "clarification": null, "replaced_pending": false, "transcript": "दस किलो चावल आया", "confirm_text": "10 किलो बासमती चावल आया — सही है?", "speak_text": "10 किलो बासमती चावल आया — सही है?",
+            "entries": [ { "action": "receiving", "item_id": "rice_basmati", "item_label": "बासमती चावल", "item_heard": "चावल", "quantity": 10, "unit": "kg", "quantity_base": 10, "base_unit": "kg", "value_inr": 1100, "reason": null, "temperature_c": null, "stock_after": 30, "warnings": [] } ],
+            "meta": "*" } },
+        { "type": "draft.cleared", "draft_id": "d2", "reason": "replaced" },
+        { "type": "tts", "ref": "d3", "text": "*", "language": "hi-IN", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "draft.cancel", "draft_id": "d3" },
+      "expect": [ { "type": "draft.cleared", "draft_id": "d3", "reason": "cancelled" } ] },
+
+    { "send": { "type": "ptt.start", "turn": 3 }, "expect": [] },
+    { "send": { "type": "ptt.stop", "turn": 3 },
+      "expect": [
+        { "type": "stt.final", "turn": 3, "text": "", "language": null },
+        { "type": "error", "code": "EMPTY_TRANSCRIPT", "message": "*", "turn": 3 },
+        { "type": "tts", "ref": "*", "text": "*", "language": "*", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "text", "turn": 4, "text": "twenty eggs received" },
+      "expect": [
+        { "type": "draft", "turn": 4, "timings": { "stt_ms": null, "llm_ms": "*", "total_ms": "*" }, "draft": { "intent": "log", "language": "en-IN", "entries": [ { "item_id": "eggs", "quantity": 20, "unit": "pcs" } ] } },
+        { "type": "tts", "ref": "*", "text": "*", "language": "en-IN", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "draft.confirm", "draft_id": "*", "edits": [ { "index": 0, "quantity": 24 } ] },
+      "expect": [
+        { "type": "record.saved", "record": { "edited": true, "entries": [ { "item_id": "eggs", "quantity": 24, "value_inr": 168 } ] } },
+        { "type": "draft.cleared", "draft_id": "*", "reason": "confirmed" },
+        { "type": "record.new", "record": "*" },
+        { "type": "inventory.update", "items": "*" },
+        { "type": "tts", "ref": "*", "text": "*", "language": "*", "audio_b64": "*", "mime": "audio/wav" }
+      ] },
+
+    { "send": { "type": "ping" }, "expect": [ { "type": "pong" } ] }
+  ],
+
+  "dashboard": {
+    "_readme": "A second client with role dashboard connected before step 2 must receive, in addition to record.new / inventory.update: these activity frames during the staff turns.",
+    "expect_activity_sequence": [
+      { "state": "listening", "text": "" },
+      { "state": "listening", "text": "ಇಪ್ಪತ್ತು" },
+      { "state": "listening", "text": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು" },
+      { "state": "thinking", "text": "ಇಪ್ಪತ್ತು ಲೀಟರ್ ಹಾಲು ಬಂದಿದೆ" },
+      { "state": "reviewing", "text": "*" },
+      { "state": "idle", "text": "" }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KitchenVoice · Presenter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="present">
+<aside class="rail">
+  <div class="k"><span>KitchenVoice</span><span id="stepNo">1 / 5</span></div>
+  <div class="steps" id="steps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <h2 id="railTitle"></h2>
+  <div class="pointers" id="railPointers"></div>
+  <div class="now"><div class="k">Say now</div><div id="railNow"></div></div>
+  <div class="keys"><span>→ / space next</span><span>← back</span><span>?step=N</span></div>
+</aside>
+<main class="stage" id="stage">
+  <iframe id="dash" src="/dashboard" title="Live dashboard" hidden></iframe>
+  <div id="livebar" class="livebar" hidden><span class="dot rec"></span><span>Live · asia-south1 · release → card in ~640 ms</span></div>
+  <div id="slide" class="slide"></div>
+</main>
+<script type="module">
+  import { boot } from "/present.js";
+  window.kv = boot();
+</script>
+</body>
+</html>

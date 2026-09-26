@@ -1,0 +1,33 @@
+# SITE_ADDRESS=":443" serves on the raw IP with a self-signed cert (browser warning; phone mic blocked).
+# SITE_ADDRESS="demo.palyt.in" gets a real Let's Encrypt cert automatically once DNS points here.
+{
+	servers {
+		protocols h1 h2 h3
+	}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# deploy.sh removes this line when SITE_ADDRESS is a real hostname (Let's Encrypt takes over).
+	tls internal
+
+	# WebSocket + API + static files all go to the gateway; Caddy streams frames without buffering.
+	reverse_proxy gateway:3000 {
+		flush_interval -1
+		transport http {
+			keepalive 5m
+			keepalive_idle_conns 32
+		}
+	}
+
+	header {
+		-Server
+		Cache-Control "no-store"
+	}
+}
+
+# Plain HTTP → HTTPS
+:80 {
+	redir https://{host}{uri} permanent
+}
