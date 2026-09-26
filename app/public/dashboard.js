@@ -22,7 +22,7 @@ export function boot(opts = {}) {
   const wsUrl = opts.wsUrl || wsUrlFor(win.location);
   const $ = (id) => doc.getElementById(id);
   const els = {
-    conn: $("conn"), tEntries: $("tEntries"), tEntriesSub: $("tEntriesSub"), tWastage: $("tWastage"), tReceived: $("tReceived"), tSpeed: $("tSpeed"),
+    conn: $("conn"), tEntries: $("tEntries"), tEntriesSub: $("tEntriesSub"), tWastage: $("tWastage"), tReceived: $("tReceived"), tSpeed: $("tSpeed"), tSpeedSub: $("tSpeedSub"),
     strip: $("strip"), stripK: $("stripK"), stripDot: $("stripDot"), stripText: $("stripText"),
     log: $("log"), inv: $("inv"), menu: $("menu"), dish: $("dish"), tabInv: $("tabInv"), tabMenu: $("tabMenu"),
   };
@@ -36,8 +36,16 @@ export function boot(opts = {}) {
     els.tEntriesSub.textContent = t.clarified ? `${t.clarified} asked` : "";
     els.tWastage.textContent = fmtInr(t.wastage_inr);
     els.tReceived.textContent = fmtInr(t.receiving_inr);
-    const { p50 } = t.latency_ms || {};
-    els.tSpeed.textContent = p50 != null ? `${Math.round(p50)} ms` : "–";
+    renderSpeed();
+  }
+  // Big number = the most recent turn's release → card time; small line = today's average.
+  function renderSpeed() {
+    const today = dayKey(new Date().toISOString());
+    const timed = S.records.filter((r) => r.timings && dayKey(r.created_at) === today).map((r) => r.timings.total_ms);
+    const latest = S.records.find((r) => r.timings)?.timings.total_ms;
+    els.tSpeed.textContent = latest != null ? `${Math.round(latest)} ms` : "–";
+    const avg = timed.length ? Math.round(timed.reduce((a, b) => a + b, 0) / timed.length) : null;
+    els.tSpeedSub.textContent = avg != null ? `Today's average ${avg} ms · release → card` : "Release → card";
   }
   async function refetchStats() {
     try { renderStats(await fetchImpl(`${httpBase}/api/stats`).then((r) => r.json())); } catch {}
@@ -208,7 +216,7 @@ export function boot(opts = {}) {
     switch (m.type) {
       case "ready": els.conn.textContent = ""; els.conn.classList.add("on"); break;
       case "activity": renderActivity(m.activity); break;
-      case "record.new": addRecord(m.record); refetchStats(); break;
+      case "record.new": addRecord(m.record); renderSpeed(); refetchStats(); break;
       case "record.updated": updateRecord(m.record); break;
       case "inventory.update": renderInventory(m.items); refetchMenu(); break;
       default: break;
@@ -222,7 +230,7 @@ export function boot(opts = {}) {
   async function load() {
     try { const c = await fetchImpl(`${httpBase}/api/catalog`).then((r) => r.json()); S.catalog = c.items || []; } catch {}
     await refetchStats();
-    try { const r = await fetchImpl(`${httpBase}/api/records?limit=50`).then((r) => r.json()); S.records = r.records || []; renderLog(); } catch {}
+    try { const r = await fetchImpl(`${httpBase}/api/records?limit=50`).then((r) => r.json()); S.records = r.records || []; renderLog(); renderSpeed(); } catch {}
     try { const i = await fetchImpl(`${httpBase}/api/inventory`).then((r) => r.json()); renderInventory(i.items || []); } catch {}
     await refetchMenu();
   }
