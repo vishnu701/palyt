@@ -132,7 +132,6 @@ fake-provider run reports the in-process cost of a turn (p99 ≈ 2 ms).
 
 ```
 SPEC.md               design record (single source of truth, every decision and why)
-briefs/               per-agent build briefs (client, gateway, interpreter)
 app/contracts/        protocol.ts (every WS/HTTP frame as zod), interfaces.ts, catalog.ts (+ recipes), fixtures/
 app/public/           phone (/), dashboard, presenter — vanilla JS, no build step
 app/src/gateway/      Bun server: WS sessions, Sarvam STT/TTS adapters, ledger, JSONL store
